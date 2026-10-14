@@ -24,3 +24,17 @@ there first, then copy them here.
 Put it in a folder named after the tool (`<tool>/install.ps1`, `<tool>/install.sh`), keep the public copy limited to
 bootstrapping (install Git and the GitHub CLI, sign in, clone, hand over to the repository's own installer), and add a
 section above.
+
+## Developer checks
+
+With Git, just, Python 3 and Bash already installed, run `just setup` from this
+clone to activate the tracked Git hook. Windows uses Windows PowerShell 5.1;
+macOS/Linux also need `pwsh`. Setup only configures this clone's hook path.
+Existing custom hook paths/default hooks are preserved; integrate
+`just pre-commit` there explicitly if setup reports a conflict.
+
+`just pre-commit` parses the Bash and PowerShell installers and the developer
+scripts. It checks the working tree without running installers, downloading
+tools, or changing source/staged files. These syntax checks do not prove installer
+behavior or macOS Bash 3.2 compatibility; product installer copies stay owned by
+`video-maker` as described above. There is no CI workflow in this repository.
