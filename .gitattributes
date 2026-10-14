@@ -1,0 +1,2 @@
+.githooks/pre-commit text eol=lf
+video-maker/install.sh text eol=lf
