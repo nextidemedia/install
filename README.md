@@ -27,7 +27,7 @@ section above.
 
 ## Developer checks
 
-With Git, just, Python 3 and Bash already installed, run `just setup` from this
+With Git, just and Bash already installed, run `just setup` from this
 clone to activate the tracked Git hook. Windows uses Windows PowerShell 5.1;
 macOS/Linux also need `pwsh`. Setup only configures this clone's hook path.
 Existing custom hook paths/default hooks are preserved; integrate
@@ -38,3 +38,6 @@ scripts. It checks the working tree without running installers, downloading
 tools, or changing source/staged files. These syntax checks do not prove installer
 behavior or macOS Bash 3.2 compatibility; product installer copies stay owned by
 `video-maker` as described above. There is no CI workflow in this repository.
+
+Run `scripts/test_hooks.ps1` with the same PowerShell to check hook setup against
+temporary Git repositories, including existing hook and linked-worktree cases.

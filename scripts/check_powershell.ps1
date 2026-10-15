@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $failed = $false
-foreach ($file in @('video-maker/install.ps1', 'scripts/check_powershell.ps1')) {
+foreach ($file in @('video-maker/install.ps1', 'scripts/check_powershell.ps1', 'scripts/install_hooks.ps1', 'scripts/test_hooks.ps1')) {
     $tokens = $null
     $errors = $null
     [System.Management.Automation.Language.Parser]::ParseFile(
