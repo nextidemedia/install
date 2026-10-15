@@ -112,6 +112,15 @@ try {
     Setup $false
     $other = New-Repository 'other'
     Setup $false (Join-Path $repo 'scripts/install_hooks.ps1')
+    if ($env:OS -ne 'Windows_NT') {
+        $linkedScript = Join-Path $other 'scripts/install_hooks.ps1'
+        Remove-Item -LiteralPath $linkedScript
+        New-Item -ItemType SymbolicLink -Path $linkedScript -Target (Join-Path $repo 'scripts/install_hooks.ps1') | Out-Null
+        Setup $false
+        Set-Location $repo
+        Setup $true $linkedScript
+        Git-Checked config --local --unset core.hooksPath | Out-Null
+    }
     Set-Location $sandbox
     Setup $false (Join-Path $repo 'scripts/install_hooks.ps1')
 

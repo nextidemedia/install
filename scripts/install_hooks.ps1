@@ -4,7 +4,13 @@ $root = & git rev-parse --show-toplevel
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $prefix = & git rev-parse --show-prefix
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-$project = Join-Path $PSScriptRoot '..'
+$scriptFile = Get-Item -LiteralPath $PSCommandPath
+while ($scriptFile.LinkType -eq 'SymbolicLink') {
+    $target = @($scriptFile.Target)[0]
+    if (-not [IO.Path]::IsPathRooted($target)) { $target = Join-Path $scriptFile.DirectoryName $target }
+    $scriptFile = Get-Item -LiteralPath $target
+}
+$project = Split-Path $scriptFile.DirectoryName
 $projectRoot = & git -C $project rev-parse --show-toplevel
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $projectPrefix = & git -C $project rev-parse --show-prefix
