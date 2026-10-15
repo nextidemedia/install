@@ -2,14 +2,22 @@ $ErrorActionPreference = 'Stop'
 
 $root = & git rev-parse --show-toplevel
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-$project = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-if ((Resolve-Path -LiteralPath $root).Path -ne $project -or (Get-Location).Path -ne $project) {
+$prefix = & git rev-parse --show-prefix
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$project = Join-Path $PSScriptRoot '..'
+$projectRoot = & git -C $project rev-parse --show-toplevel
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$projectPrefix = & git -C $project rev-parse --show-prefix
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+# Let Git resolve linked paths; PowerShell's Resolve-Path retains symlink spellings.
+$comparison = if ($env:OS -eq 'Windows_NT') { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+if ($prefix -or $projectPrefix -or -not [string]::Equals($root, $projectRoot, $comparison)) {
     throw 'Run git init in this project, then run hook setup from its root.'
 }
 
 $configured = & git config --get core.hooksPath
 if ($LASTEXITCODE -eq 0) {
-    if ($configured -eq '.githooks') { exit 0 }
+    if ($configured -ceq '.githooks') { exit 0 }
     throw 'Existing core.hooksPath preserved; integrate just pre-commit there explicitly.'
 }
 if ($LASTEXITCODE -ne 1) { exit $LASTEXITCODE }
@@ -29,7 +37,7 @@ if ((Test-Path -LiteralPath $defaultHooks) -and
     (Get-ChildItem -LiteralPath $defaultHooks -Force | Where-Object { $_.Name -cin $hookNames })) {
     throw 'Existing Git hooks preserved; integrate just pre-commit there explicitly.'
 }
-$hook = Join-Path $project '.githooks/pre-commit'
+$hook = Join-Path $projectRoot '.githooks/pre-commit'
 if (-not (Test-Path -LiteralPath $hook -PathType Leaf)) {
     throw 'Missing tracked .githooks/pre-commit.'
 }

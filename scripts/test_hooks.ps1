@@ -50,6 +50,14 @@ try {
     Setup $true
     Assert ((Get-Content .git/config -Raw) -ceq $config) 'Repeat setup changed config'
     Assert ((Get-Content .githooks/pre-commit -Raw) -ceq $hook) 'Setup changed tracked hook content'
+    $alias = Join-Path $sandbox 'repo alias'
+    $linkType = if ($env:OS -eq 'Windows_NT') { 'Junction' } else { 'SymbolicLink' }
+    New-Item -ItemType $linkType -Path $alias -Target $repo | Out-Null
+    Setup $true (Join-Path $alias 'scripts/install_hooks.ps1')
+    Set-Location $alias
+    Setup $true (Join-Path $repo 'scripts/install_hooks.ps1')
+    Set-Location $repo
+    [IO.Directory]::Delete($alias)
 
     & just pre-commit
     Assert ($LASTEXITCODE -eq 0) 'Clean syntax checks failed'
@@ -79,7 +87,7 @@ try {
     Remove-Item .git/hooks/pre-commit
 
     foreach ($scope in @('--local', '--global')) {
-        foreach ($value in @('custom hooks', '')) {
+        foreach ($value in @('custom hooks', '.GITHOOKS', '')) {
             # PowerShell 5.1 drops empty native arguments; write the empty value through Git's file format.
             $file = if ($scope -eq '--local') { '.git/config' } else { $env:GIT_CONFIG_GLOBAL }
             Add-Content $file "`n[core]`n    hooksPath = $value"
