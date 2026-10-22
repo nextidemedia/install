@@ -110,7 +110,7 @@ Push-Location $repo
 try {
     foreach ($tool in @(
         @('git', 'Git.Git'), @('gh', 'GitHub.cli'), @('uv', 'astral-sh.uv'),
-        @('node', 'OpenJS.NodeJS.LTS'), @('ffmpeg', 'Gyan.FFmpeg')
+        @('node', 'OpenJS.NodeJS'), @('ffmpeg', 'Gyan.FFmpeg')
     )) { Require-Tool $tool[0] $tool[1] }
     $chrome = @($env:CHROME, "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
         "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe",
@@ -141,10 +141,10 @@ try {
     $saved = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     try { $check = (& (Find-Tool 'uv') run python tools/doctor.py 2>&1) -join "`n" }
     finally { $ErrorActionPreference = $saved }
-    foreach ($repair in @(@('Node', 'OpenJS.NodeJS.LTS'), @('ffmpeg', 'Gyan.FFmpeg'))) {
+    foreach ($repair in @(@('Node', 'OpenJS.NodeJS', 'install'), @('ffmpeg', 'Gyan.FFmpeg', 'upgrade'))) {
         if ($check -match "FIX\s+$($repair[0]):.*(?:older than|need 7 or newer)") {
             Run-Step "Update $($repair[0]) (doctor requires it)" (Find-Tool 'winget') @(
-                'upgrade', '--id', $repair[1], '--exact', '--source', 'winget',
+                $repair[2], '--id', $repair[1], '--exact', '--source', 'winget',
                 '--accept-source-agreements', '--accept-package-agreements'
             )
             Refresh-Path
