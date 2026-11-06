@@ -29,15 +29,22 @@ section above.
 
 With Git, just and Bash already installed, run `just setup` from this
 clone to activate the tracked Git hook. Windows uses Windows PowerShell 5.1;
-macOS/Linux also need `pwsh`. Setup only configures this clone's hook path.
+macOS/Linux use `sh` and do not need PowerShell. Setup writes the local Git
+hook configuration. Run it in a standalone clone: linked worktrees share that
+configuration with their main checkout.
 Existing custom hook paths/default hooks are preserved; integrate
 `just pre-commit` there explicitly if setup reports a conflict.
 
-`just pre-commit` parses the Bash and PowerShell installers and the developer
-scripts. It checks the working tree without running installers, downloading
+`just pre-commit` parses the Bash installer and native developer shell scripts
+on Unix. On Windows it parses the Bash installer and uses the PowerShell parser
+for the PowerShell installer and developer scripts. It checks the working tree without running installers, downloading
 tools, or changing source/staged files. These syntax checks do not prove installer
 behavior or macOS Bash 3.2 compatibility; product installer copies stay owned by
 `video-maker` as described above. There is no CI workflow in this repository.
 
-Run `scripts/test_hooks.ps1` with the same PowerShell to check hook setup against
+PowerShell source qualification remains a Windows check; Unix shell checks do
+not validate PowerShell syntax.
+
+On Unix, run `python3 scripts/test_hooks.py`. On Windows, run
+`scripts/test_hooks.ps1` with the same PowerShell to check hook setup against
 temporary Git repositories, including existing hook and linked-worktree cases.
