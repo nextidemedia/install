@@ -33,7 +33,7 @@ else
 fi
 
 hooks=$(git rev-parse --git-path hooks)
-for hook in "$hooks"/* "$hooks"/.[!.]* "$hooks"/..?*; do
+for hook in "$hooks"/*; do
     case ${hook##*/} in
         applypatch-msg|pre-applypatch|post-applypatch|pre-commit|pre-merge-commit|prepare-commit-msg|commit-msg|post-commit|pre-rebase|post-checkout|post-merge|pre-push|pre-receive|update|proc-receive|post-receive|post-update|reference-transaction|push-to-checkout|pre-auto-gc|post-rewrite|sendemail-validate|fsmonitor-watchman|p4-changelist|p4-prepare-changelist|p4-post-changelist|p4-pre-submit|post-index-change)
             if [ -e "$hook" ] || [ -L "$hook" ]; then
